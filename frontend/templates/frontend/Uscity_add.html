@@ -1,0 +1,67 @@
+{% extends "frontend/base.html" %}
+
+{% block body %}
+  <br>
+  <h3 class="text-center m=4">Didn't found your City!?</h3><br>
+  {% if success %}
+    <div class="alert alert-success" role="alertdialog">
+      The new city added successfully. You can search your
+      <a href="{% url 'search' %}" class="alertdialog-link"> City Here.</a>
+    </div>
+  {% else %}
+    <div class="row justify-content-center">
+      <div class="col-6">
+        <div class="card text-white bg-secondary mb-3">
+          <div class="card-header">
+            <i class="fa-solid fa-thumbtack fa-lg"></i>   Add US City Here</div>
+          <div class="card-body">
+            <form action="{% url 'Uscity_add' %}" method="POST">
+            {% csrf_token %}
+            <script>
+              function updatePopulationDensity() {
+                  const populationInput = document.getElementById('id_population');
+                  const areaInput = document.getElementById('id_area');
+                  const populationDensityInput = document.getElementById('id_population_density');
+                  const population = parseFloat(populationInput.value);
+                  const area = parseFloat(areaInput.value);
+                  if (!isNaN(population) && !isNaN(area) && area > 0) {
+                      const populationDensity = population / area;
+                      populationDensityInput.value = populationDensity.toFixed(2);
+                  } else {
+                      populationDensityInput.value = '';
+                  }
+              }
+              document.getElementById('id_population').addEventListener('input', updatePopulationDensity);
+              document.getElementById('id_area').addEventListener('input', updatePopulationDensity);
+              
+              function checkCityName() {
+                  const cityNameInput = document.getElementById('id_name');
+                  const submitButton = document.querySelector('button[type="submit"]');
+                  const cityNames = [
+                      {% for city in cities %}
+                          "{{ city.name|lower }}",
+                      {% endfor %}
+                  ];
+
+                  if (cityNames.includes(cityNameInput.value.toLowerCase())) {
+                      cityNameInput.setCustomValidity('A city with this name already exists.');
+                      submitButton.disabled = true;
+                      cityNameInput.reportValidity();
+                  } else {
+                      cityNameInput.setCustomValidity('');
+                      submitButton.disabled = false;
+                  }
+              }
+              document.getElementById('id_name').addEventListener('input', checkCityName);
+            </script>
+            {{ form.as_p }}
+            <button type="submit" class="col-2 btn btn-success">Add</button>
+            <a href="{%url 'Uscity_add' %}" class="col-2 btn btn-primary">Cancel</a>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+{% endblock %}

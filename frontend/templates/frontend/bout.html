@@ -1,0 +1,64 @@
+{% extends "frontend/base.html" %}
+{% block body %}
+           <!-- Header-->
+           <header class="py-5">
+            <div class="container px-5">
+                <div class="row justify-content-center">
+                    <div class="col-lg-8 col-xxl-6">
+                        <div class="text-center my-5">
+                            <h1 class="fw-bolder mb-3">Our mission is to build as well as maintain Subway System</h1>
+                            <p class="lead fw-normal text-muted mb-4">"Subserve and SubTrain"</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Team members section-->
+        <section class="py-5 bg-light">
+            <div class="container px-5 my-5">
+                <div class="text-center">
+                    <h2 class="fw-bolder">Our team</h2>
+                    <p class="lead fw-normal text-muted mb-5">Dedicated to quality and your success</p>
+                </div>
+                <div class="row gx-5 row-cols-1 row-cols-sm-2 row-cols-xl-5 justify-content-center">
+                    <div class="col mb-5 mb-5 mb-xl-0">
+                        <div class="text-center">
+                            {% load static %}
+                            <img class="img-fluid rounded-circle mb-4 px-4" src="{% static 'frontend/images/avatar1.png' %}" alt="..." />
+                            <h5 class="fw-bolder">Jon Hogan</h5>
+                        </div>
+                    </div>
+                    <div class="col mb-5 mb-5 mb-xl-0">
+                        <div class="text-center">
+                            {% load static %}
+                            <img class="img-fluid rounded-circle mb-4 px-4" src="{% static 'frontend/images/avatar2.png' %}" alt="..." />
+                            <h5 class="fw-bolder">Ally Moore</h5>
+                        </div>
+                    </div>
+                    <div class="col mb-5 mb-5 mb-xl-0">
+                        <div class="text-center">
+                            {% load static %}
+                            <img class="img-fluid rounded-circle mb-4 px-4" src="{% static 'frontend/images/avatar1.png' %}" alt="..." />
+                            <h5 class="fw-bolder">Timothy Lockhart</h5>
+                        </div>
+                    </div>
+                    <div class="col mb-5 mb-5 mb-sm-0">
+                        <div class="text-center">
+                            {% load static %}
+                            <img class="img-fluid rounded-circle mb-4 px-4" src="{% static 'frontend/images/avatar1.png' %}" alt="..." />
+                            <h5 class="fw-bolder">Prakash Tamang</h5>
+                        </div>
+                    </div>
+                    <div class="col mb-5">
+                        <div class="text-center">
+                            {% load static %}
+                            <img class="img-fluid rounded-circle mb-4 px-4" src="{% static 'frontend/images/avatar1.png' %}" alt="..." />
+                            <h5 class="fw-bolder">Paras Shahi</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+{% endblock %}

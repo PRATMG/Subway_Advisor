@@ -1,0 +1,76 @@
+{% extends "frontend/base.html" %}
+
+{% block body %}
+  <br>
+  <h3 class="text-center m=4">Didn't found your City!?</h3><br>
+  {% if success %}
+    <div class="alert alert-success" role="alertdialog">
+      The new city added successfully. You can search your 
+      <a href="{% url 'search' %}" class="alertdialog-link">City Here.</a>
+    </div>
+  {% else %}
+    <div class="row justify-content-center">
+      <div class="col-6">
+        <div class="card text-white bg-secondary mb-3">
+          <div class="card-header">
+            <i class="fa-solid fa-thumbtack fa-lg"></i>   Add World City Here</div>
+          <div class="card-body">
+            <form action="{% url 'Worldcity_add' %}" method="POST">
+            {% csrf_token %}
+            <script>
+                  function updatePopulationDensity() {
+                      const populationInput = document.getElementById('id_population');
+                      const areaInput = document.getElementById('id_area');
+                      const populationDensityInput = document.getElementById('id_population_density');
+                      const population = parseFloat(populationInput.value);
+                      const area = parseFloat(areaInput.value);
+                      if (!isNaN(population) && !isNaN(area) && area > 0) {
+                          const populationDensity = population / area;
+                          populationDensityInput.value = populationDensity.toFixed(2);
+                      } else {
+                          populationDensityInput.value = '';
+                      }
+                  }
+
+                  
+              document.addEventListener('DOMContentLoaded', function() {
+                
+                function checkCityNameAndCountry() {
+                    const cityNameInput = document.getElementById('id_name');
+                    const cityCountryInput = document.getElementById('id_country');
+                    const submitButton = document.querySelector('button[type="submit"]');
+                    const citiesData = [
+                        {% for city in world_cities %}
+                            {"name": "{{ city.name|lower }}", "country": "{{ city.country|lower }}"},
+                        {% endfor %}
+                    ];
+
+                    const cityNameExists = citiesData.some(cityData => 
+                        cityData.name === cityNameInput.value.toLowerCase() && 
+                        cityData.country === cityCountryInput.value.toLowerCase()
+                    );
+
+                    if (cityNameExists) {
+                        cityNameInput.setCustomValidity('A city with this name and country already exists.');
+                        submitButton.disabled = true;
+                        cityNameInput.reportValidity();
+                    } else {
+                        cityNameInput.setCustomValidity('');
+                        submitButton.disabled = false;
+                    }
+                }
+
+                document.getElementById('id_name').addEventListener('input', checkCityNameAndCountry);
+                document.getElementById('id_country').addEventListener('input', checkCityNameAndCountry);
+              });
+            </script> 
+            {{ form_2.as_p }}
+            <button type="submit" class="btn btn-success align-items-center">Add</button>
+            <a href="{%url 'Worldcity_add' %}" class="btn btn-primary align-items-center">Cancel</a>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+{% endblock %}

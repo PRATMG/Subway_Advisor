@@ -1,0 +1,59 @@
+{% extends "frontend/base.html" %}
+
+{% block body %}
+<style>
+    .custom-padding {
+        padding-top: 10rem;
+        padding-bottom: 10rem;
+    }
+</style>
+
+                 <!-- Header-->
+                 <div class="bg-dark py-5">
+                    <div class="container px-5">
+                        <div class="row gx-5 align-items-center justify-content-center">
+                                <div class="col-lg-8 col-xl-7 col-xxl-6">
+                                <div class="my-5 text-center text-xl-start">
+                                    <h1 class="display-5 fw-bolder text-white mb-2">TAPP with SubServe and ServeTerrain</h1>
+                                    <p class="lead fw-normal text-white-50 mb-4">"your friendly subway Predictor"</p>
+                                    <div class="d-grid gap-3 d-sm-flex justify-content-sm-center justify-content-xl-start">
+                                    <a class="btn btn-primary btn-lg px-4 me-sm-3" href="{% url 'search' %}">Get Started</a>
+                                    </div>
+                                </div>
+                                </div>
+                            <div class="col-xl-5 col-xxl-6 d-none d-xl-block text-center">{% load static %}<img class="img-fluid rounded-3 my-5" src="{% static 'frontend/images/ttt.png' %}" alt="..." /></div> 
+                        </div>
+                    </div>
+                </div>
+            <!-- Features section-->
+            <section class="bg-light custom-padding mb-0 flex-shrink-0" id="features">
+                <div class="container px-5">
+                    <div class="row gx-5">
+                        <div class="col-12 col-md-6 col-lg-4 mb-5 mb-lg-0">
+                            <h2 class="fw-bolder mb-0">A right way to start.</h2>
+                        </div>
+                        <div class="col-12 col-md-6 col-lg-8">
+                            <div class="row gx-5 row-cols-1 row-cols-md-2 row-cols-lg-4">
+                                <div class="col mb-5">
+                                    <h2 class="h5">Search the City</h2>
+                                    <p class="mb-0">Search the city from search bar.</p>
+                                </div>
+                                <div class="col mb-5">
+                                    <h2 class="h5">Or, Click on Map</h2>
+                                    <p class="mb-0">Click the city marker map.</p>
+                                </div>
+                                <div class="col mb-5">
+                                    <h2 class="h5">Get information</h2>
+                                    <p class="mb-0">Information about the city.</p>
+                                </div>
+                                <div class="col">
+                                    <h2 class="h5">Add city</h2>
+                                    <p class="mb-0">Your can add the city that is not in database.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>            
+            
+{% endblock %}

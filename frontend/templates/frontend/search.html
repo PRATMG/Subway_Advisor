@@ -1,0 +1,242 @@
+{% extends "frontend/base.html" %}
+{% load static %}
+{% block body %}
+    <!-- Modal -->
+    <div class="modal fade" id="alertIndicator" tabindex="-1" aria-labelledby="alertIndicatorLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="alertIndicatorLabel">Warning!</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>City not found.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container-fluid">
+        <div class="row" style="height: 100%;">
+          <div class="col" style="height: 100%;">
+            <div class="card bg-light mb-3 full-width-card" style="height: 100%;">
+              <div class="card-body card-content">
+                <div class="upper-row">
+                  <p class="search-title">Search city name or navigate through Map below</p>
+                  <div class="search-bar-container">
+                    <input type="text" class="form-control search-bar" placeholder="Search" id="citySearch">
+                    <button class="btn btn-primary" id="searchButton">Search</button>
+                  </div>
+                </div>
+                <div class="lower-row">
+                  <div class="left-column">
+                    <div class="map-interface" id="mapid">Map interface here</div>
+                  </div>
+                  <div class="right-column">
+                    <div class="right-column-row" id="city-info">
+                      <h5>City Information</h5>
+                      <p>Click on a city marker on the map to display information here.</p>
+                    </div>
+                    <div class="right-column-row" id="railway-info">
+                      <h5>Railway Information</h5>
+                      <p>Railway information content here.</p>
+                    </div>
+                    <div class="right-column-row" id="decision-output">
+                      <h5>Recommendations:</h5>
+                      <p>Recommendations content here.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <script>
+        // Event listener for clicking the search button
+        document.getElementById('searchButton').addEventListener('click', function () {
+          handleSearch();
+          fetchCityInfo();
+        });
+      </script>
+    <script>
+        var mymap = L.map('mapid').setView([40.7, -74], 7);
+        var OpenStreetMap_Mapnik = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 18,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(mymap);
+
+    // Function to handle marker click events
+    function onMarkerClick(city_name) {
+        // Call the Django view to get the decision output
+        $.ajax({
+            url: '/get_decision/' + city_name + '/',
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                // Update the information box with the decision output
+                var decisionOutput = data.decision;
+                var decisionElement = document.getElementById('decision-output');
+                decisionElement.innerHTML = `
+                    <h3>Recommendations:</h3>
+                    <p>${decisionOutput}</p>
+                `;
+            },
+        });
+    }
+        // Function to handle search action
+        function handleSearch() {
+            var cityName = document.getElementById('citySearch').value;
+            searchCity(cityName);
+            fetchCityInfo(cityName); // Pass the cityName as an argument
+        }
+
+        // Event listener for pressing Enter key in the search input field
+        document.getElementById('citySearch').addEventListener('keyup', function (event) {
+            if (event.keyCode === 13) { // 13 is the key code for Enter
+                event.preventDefault(); // Prevent the default form submission behavior
+                handleSearch(); // Call the search function
+            }
+        });
+
+        function closeAlertIndicator() {
+            document.getElementById('alertIndicator').style.display = 'none';
+        }
+
+        function searchCity(cityName) {
+            var cityNameLower = cityName.toLowerCase();
+            for (var id in markers) {
+                var marker = markers[id];
+                var markerCityName = marker.feature.properties.name.toLowerCase();
+                if (markerCityName === cityNameLower) {
+                    mymap.setView(marker.getLatLng(), 10);
+                    marker.openPopup();
+                    var railwayInfo = railwayData[`${marker.feature.properties.id}_${marker.feature.properties.country}`];
+                    showCityInfo(marker.feature.properties, railwayInfo);
+                    fetchCityInfo(cityName); // Pass the city name instead of properties
+                    return;
+                }
+            }
+            // Show the alert indicator using Bootstrap's modal
+            var alertIndicator = new bootstrap.Modal(document.getElementById('alertIndicator'));
+            alertIndicator.show();
+        }
+
+
+        // Function to fetch city information
+        function fetchCityInfo(cityName) {
+            let cityNameLower;
+
+            // Check if cityName is a string or an object
+            if (typeof cityName === 'string') {
+                cityNameLower = cityName.toLowerCase();
+            } else {
+                cityNameLower = cityName.name.toLowerCase();
+            }
+
+            let foundCity = false;
+
+            for (var id in markers) {
+                var marker = markers[id];
+                var markerCityName = marker.feature.properties.name.toLowerCase();
+                if (markerCityName === cityNameLower) {
+                    const railwayInfo = railwayData[`${marker.feature.properties.id}_${marker.feature.properties.country}`];
+                    showCityInfo(marker.feature.properties, railwayInfo);
+                    foundCity = true;
+                    onMarkerClick(marker.feature.properties.name); // Call onMarkerClick with the city name
+                    break;
+                }
+            }
+
+            if (!foundCity) {
+                // Show the alert indicator instead of calling alert()
+                document.getElementById('alertIndicator').style.display = 'block';
+            }
+        }
+
+        function showCityInfo(properties, railwayInfo, decisionOutput) {
+            var cityInfo = document.getElementById('city-info');
+            cityInfo.innerHTML = `
+                <h2>${properties.name}</h2>
+                <p>
+                    <strong>ID:</strong> ${properties.id}<br>
+                    <strong>Country:</strong> ${properties.country}<br>
+                    <strong>State:</strong> ${properties.state}<br>
+                    <strong>countryCode:</strong> ${properties.countryCode}<br>
+                    <strong>Population:</strong> ${properties.population}<br>
+                    <strong>Area:</strong> ${properties.area} sq. km
+                </p>
+            `;
+
+            var railwayInfoElement = document.getElementById('railway-info');
+            if (railwayInfo) {
+                railwayInfoElement.innerHTML = `
+                    <h3>Railway Information</h3>
+                    <p>
+                        <strong>Railway:</strong> ${railwayInfo['rail_type']}<br>
+                        <strong>Name:</strong> ${railwayInfo['name']}<br>
+                        <strong>Service Opened:</strong> ${railwayInfo['service_opened']}<br>
+                        <strong>Last Expanded:</strong> ${railwayInfo['last_expanded']}<br>
+                        <strong>Stations:</strong> ${railwayInfo['stations']}<br>
+                        <strong>System Length (km):</strong> ${railwayInfo['system_length']}<br>
+                        <strong>Annual Ridership (millions):</strong> ${railwayInfo['annual_ridership']}
+
+                    </p>
+                `;
+            } else {
+                railwayInfoElement.innerHTML = '<strong>No railway available</strong>';
+            }
+        }
+            // Load the railway data
+            function loadRailwayData() {
+                return fetch('/metro_data/')
+                    .then((response) => response.json())
+                    .then((railwayArray) => {
+                        const railwayData = {};
+                        railwayArray.forEach((railway) => {
+                            railwayData[`${railway.city_id}_${railway.country}`] = railway;
+                        });
+                        console.log("Loaded railway data: ", railwayData); // Debugging line
+                        return railwayData;
+                    });
+            }
+
+        // Load the GeoJSON data and add it to the map
+        let markers = {};
+        fetch('/city_data/')
+            .then(response => response.json())
+            .then(data => {
+                L.geoJSON(data, {
+                    pointToLayer: function (feature, latlng) {
+                        var marker = L.marker(latlng).bindPopup(`
+                            <strong>ID:</strong> ${feature.properties.id}<br>
+                            <strong>Name:</strong> ${feature.properties.name}<br>
+                            <strong>Country:</strong> ${feature.properties.country}<br>
+                            <strong>State:</strong> ${feature.properties.state}<br>
+                            <strong>countryCode:</strong> ${feature.properties.countryCode}<br>
+                            <strong>Population:</strong> ${feature.properties.population}<br>
+                            <strong>Area:</strong> ${feature.properties.area} sq. km
+                        `);
+
+                        marker.on('click', function () {
+                            var railwayInfo = railwayData[`${feature.properties.id}_${feature.properties.country}`];
+                            showCityInfo(feature.properties, railwayInfo);
+                            onMarkerClick(feature.properties.name);
+                        });
+
+                        markers[feature.properties.id] = marker;
+                        return marker;
+                    }
+                }).addTo(mymap);
+            });
+
+            let railwayData = {};
+            loadRailwayData().then(data => {
+                railwayData = data;
+                console.log("Assigned railway data: ", railwayData); // Debugging line
+            });
+    </script>
+
+        <!-- Add this right before the closing </body> tag -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.14.0-beta2/js/bootstrap-select.min.js"></script>
+{% endblock %}
